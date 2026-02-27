@@ -2,6 +2,7 @@ export type UserRole = 'admin' | 'editor' | 'user' | 'guest';
 export type UserStatus = 'active' | 'pending' | 'blocked';
 export type RelationshipType = 'parent' | 'child' | 'spouse' | 'sibling';
 export type ProposalStatus = 'pending' | 'accepted' | 'rejected' | 'clarification_requested';
+export type Gender = 'male' | 'female';
 
 export interface User {
   id: string;
@@ -25,6 +26,8 @@ export interface Person {
   first_name: string;
   last_name: string;
   patronymic: string | null;
+  maiden_name: string | null;
+  gender: Gender | null;
   birth_date: string | null;
   birth_place: string | null;
   death_date: string | null;

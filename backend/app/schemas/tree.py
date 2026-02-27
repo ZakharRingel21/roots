@@ -22,6 +22,7 @@ class NodeData(BaseModel):
     id: str
     first_name: str
     last_name: str
+    patronymic: str | None
     avatar_thumb_url: str | None
     birth_date: date | None
 
@@ -36,7 +37,7 @@ class ReactFlowEdge(BaseModel):
     id: str
     source: str
     target: str
-    type: str
+    data: dict = {}
 
 
 class TreeNodesResponse(BaseModel):

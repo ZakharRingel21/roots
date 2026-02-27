@@ -3,11 +3,15 @@ from datetime import date, datetime
 
 from pydantic import BaseModel
 
+from app.models.person import Gender
+
 
 class PersonCreate(BaseModel):
     first_name: str
     last_name: str
     patronymic: str | None = None
+    maiden_name: str | None = None
+    gender: Gender | None = None
     birth_date: date | None = None
     birth_place: str | None = None
     death_date: date | None = None
@@ -20,6 +24,8 @@ class PersonUpdate(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     patronymic: str | None = None
+    maiden_name: str | None = None
+    gender: Gender | None = None
     birth_date: date | None = None
     birth_place: str | None = None
     death_date: date | None = None
@@ -36,6 +42,8 @@ class PersonOut(BaseModel):
     first_name: str
     last_name: str
     patronymic: str | None
+    maiden_name: str | None
+    gender: Gender | None
     birth_date: date | None
     birth_place: str | None
     death_date: date | None

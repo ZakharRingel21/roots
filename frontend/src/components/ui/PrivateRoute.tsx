@@ -9,6 +9,15 @@ interface PrivateRouteProps {
 
 export default function PrivateRoute({ children, requireAdmin = false }: PrivateRouteProps) {
   const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
+
+  if (!initialized) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

@@ -5,7 +5,7 @@ import { relationshipsApi } from '../../api/client';
 import type { Person, Relationship, RelationshipType } from '../../types';
 import Avatar from '../ui/Avatar';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import LinkPersonModal from '../tree/LinkPersonModal';
+import AddRelativeModal from './AddRelativeModal';
 
 interface Props {
   person: Person;
@@ -29,13 +29,11 @@ export default function RelativesList({ person, isEditor }: Props) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; treeId: string } | null>(null);
-  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  // We get the relatives from the tree nodes
   const { data: relationships = [], isLoading } = useQuery<RelationshipWithPerson[]>({
     queryKey: ['persons', person.id, 'relationships'],
     queryFn: async () => {
-      // Backend returns relationships on person detail endpoint
       const res = await fetch(`/api/persons/${person.id}/relationships`, { credentials: 'include' });
       if (!res.ok) return [];
       return res.json();
@@ -63,11 +61,9 @@ export default function RelativesList({ person, isEditor }: Props) {
     { parent: [], child: [], spouse: [], sibling: [] }
   );
 
-  const hasAny = relationships.length > 0;
-
   return (
     <div className="space-y-6">
-      {!hasAny && !isEditor && (
+      {relationships.length === 0 && (
         <div className="text-center py-12 text-slate-400">Родственники не добавлены</div>
       )}
 
@@ -94,20 +90,18 @@ export default function RelativesList({ person, isEditor }: Props) {
         );
       })}
 
-      {isEditor && (
-        <button onClick={() => setShowLinkModal(true)} className="btn-secondary w-full">
-          + Добавить родственника
-        </button>
-      )}
+      <button onClick={() => setShowAddModal(true)} className="btn-secondary w-full">
+        + Добавить родственника
+      </button>
 
-      {showLinkModal && (
-        <LinkPersonModal
+      {showAddModal && (
+        <AddRelativeModal
           treeId={person.tree_id}
           personId={person.id}
-          onClose={() => setShowLinkModal(false)}
+          onClose={() => setShowAddModal(false)}
           onSaved={() => {
             queryClient.invalidateQueries({ queryKey: ['persons', person.id, 'relationships'] });
-            setShowLinkModal(false);
+            queryClient.invalidateQueries({ queryKey: ['trees', person.tree_id, 'nodes'] });
           }}
         />
       )}
@@ -156,11 +150,7 @@ function RelativeCard({ rel, isEditor, onNavigate, onDelete }: RelativeCardProps
         )}
       </div>
       {isEditor && (
-        <button
-          onClick={onDelete}
-          className="text-slate-300 hover:text-red-500 flex-shrink-0 transition-colors"
-          title="Удалить связь"
-        >
+        <button onClick={onDelete} className="text-slate-300 hover:text-red-500 flex-shrink-0 transition-colors" title="Удалить связь">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>

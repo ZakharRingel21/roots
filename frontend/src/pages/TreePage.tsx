@@ -4,6 +4,7 @@ import { useTreeNodes, useCreatePerson } from '../hooks/useTree';
 import { useAuth } from '../hooks/useAuth';
 import TreeCanvas from '../components/tree/TreeCanvas';
 import AddPersonModal from '../components/tree/AddPersonModal';
+import AddRelativeModal from '../components/person/AddRelativeModal';
 import SearchBar from '../components/search/SearchBar';
 import Avatar from '../components/ui/Avatar';
 import type { FlowNodeData } from '../types';
@@ -23,6 +24,7 @@ export default function TreePage() {
   const { data, isLoading, error } = useTreeNodes(treeId!);
   const [selectedNode, setSelectedNode] = useState<Node<FlowNodeData> | null>(null);
   const [showAddPerson, setShowAddPerson] = useState(false);
+  const [showAddRelative, setShowAddRelative] = useState(false);
 
   const handleNodeClick = useCallback((_: React.MouseEvent, node: Node<FlowNodeData>) => {
     setSelectedNode(node);
@@ -73,11 +75,6 @@ export default function TreePage() {
             <h1 className="text-base font-semibold text-slate-900">Roots</h1>
           </div>
           <div className="flex items-center gap-3">
-            {(isAdmin || isEditor) && (
-              <button onClick={() => setShowAddPerson(true)} className="btn-primary text-sm">
-                + Добавить персону
-              </button>
-            )}
             {user?.role === 'admin' && (
               <button
                 onClick={() => navigate('/admin')}
@@ -99,6 +96,23 @@ export default function TreePage() {
         <aside className="w-72 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col overflow-y-auto">
           <div className="p-4 border-b border-slate-100">
             <SearchBar treeId={treeId} />
+          </div>
+
+          <div className="p-4 border-b border-slate-100 space-y-2">
+            <button
+              onClick={() => setShowAddPerson(true)}
+              className="btn-primary w-full text-sm"
+            >
+              + Добавить персону
+            </button>
+            {selectedNode && (
+              <button
+                onClick={() => setShowAddRelative(true)}
+                className="btn-secondary w-full text-sm"
+              >
+                + Добавить родственника
+              </button>
+            )}
           </div>
 
           {selectedNode ? (
@@ -128,7 +142,7 @@ export default function TreePage() {
               </div>
               <Link
                 to={`/persons/${selectedNode.data.id}`}
-                className="btn-primary w-full text-center"
+                className="btn-primary w-full text-center block"
               >
                 Открыть профиль
               </Link>
@@ -143,14 +157,38 @@ export default function TreePage() {
         </aside>
 
         {/* Tree Canvas */}
-        <main className="flex-1 overflow-hidden">
-          {data && (
+        <main className="flex-1 overflow-hidden relative">
+          {data && data.nodes.length > 0 ? (
             <TreeCanvas
               nodes={data.nodes}
               edges={data.edges}
               onNodeClick={handleNodeClick}
               treeId={treeId!}
             />
+          ) : (
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 text-slate-300 mx-auto mb-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <p className="text-slate-500 text-lg font-medium mb-1">Дерево пока пустое</p>
+                <p className="text-slate-400 text-sm mb-6">Добавьте первого человека, чтобы начать</p>
+                <button onClick={() => setShowAddPerson(true)} className="btn-primary">
+                  + Добавить первого человека
+                </button>
+              </div>
+            </div>
           )}
         </main>
       </div>
@@ -159,6 +197,17 @@ export default function TreePage() {
         <AddPersonModal
           treeId={treeId!}
           onClose={() => setShowAddPerson(false)}
+        />
+      )}
+
+      {showAddRelative && selectedNode && (
+        <AddRelativeModal
+          treeId={treeId!}
+          personId={selectedNode.data.id}
+          onClose={() => setShowAddRelative(false)}
+          onSaved={() => {
+            setShowAddRelative(false);
+          }}
         />
       )}
     </div>

@@ -1,6 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import Modal from '../ui/Modal';
 import { useCreatePerson } from '../../hooks/useTree';
+import type { Gender } from '../../types';
 
 interface AddPersonModalProps {
   treeId: string;
@@ -13,7 +14,9 @@ export default function AddPersonModal({ treeId, onClose }: AddPersonModalProps)
     first_name: '',
     last_name: '',
     patronymic: '',
+    maiden_name: '',
     birth_date: '',
+    gender: '' as Gender | '',
   });
   const [error, setError] = useState('');
 
@@ -33,7 +36,9 @@ export default function AddPersonModal({ treeId, onClose }: AddPersonModalProps)
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
         patronymic: form.patronymic.trim() || undefined,
+        maiden_name: form.maiden_name.trim() || undefined,
         birth_date: form.birth_date || undefined,
+        gender: (form.gender as Gender) || undefined,
       });
       onClose();
     } catch {
@@ -48,14 +53,8 @@ export default function AddPersonModal({ treeId, onClose }: AddPersonModalProps)
       title="Добавить персону"
       footer={
         <>
-          <button onClick={onClose} className="btn-secondary">
-            Отмена
-          </button>
-          <button
-            onClick={handleSave}
-            className="btn-primary"
-            disabled={createMutation.isPending}
-          >
+          <button onClick={onClose} className="btn-secondary">Отмена</button>
+          <button onClick={handleSave} className="btn-primary" disabled={createMutation.isPending}>
             {createMutation.isPending ? 'Добавление...' : 'Добавить'}
           </button>
         </>
@@ -63,59 +62,43 @@ export default function AddPersonModal({ treeId, onClose }: AddPersonModalProps)
     >
       <form onSubmit={handleSave} className="space-y-4">
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-            {error}
-          </div>
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{error}</div>
         )}
         <div>
-          <label className="label" htmlFor="add-last-name">
-            Фамилия <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="add-last-name"
-            type="text"
-            className="input"
-            placeholder="Иванов"
-            value={form.last_name}
-            onChange={(e) => handleChange('last_name', e.target.value)}
-            required
-            autoFocus
-          />
+          <label className="label" htmlFor="add-last-name">Фамилия <span className="text-red-500">*</span></label>
+          <input id="add-last-name" type="text" className="input" placeholder="Иванов"
+            value={form.last_name} onChange={(e) => handleChange('last_name', e.target.value)} required autoFocus />
         </div>
         <div>
-          <label className="label" htmlFor="add-first-name">
-            Имя <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="add-first-name"
-            type="text"
-            className="input"
-            placeholder="Иван"
-            value={form.first_name}
-            onChange={(e) => handleChange('first_name', e.target.value)}
-            required
-          />
+          <label className="label" htmlFor="add-first-name">Имя <span className="text-red-500">*</span></label>
+          <input id="add-first-name" type="text" className="input" placeholder="Иван"
+            value={form.first_name} onChange={(e) => handleChange('first_name', e.target.value)} required />
         </div>
         <div>
           <label className="label" htmlFor="add-patronymic">Отчество</label>
-          <input
-            id="add-patronymic"
-            type="text"
-            className="input"
-            placeholder="Иванович"
-            value={form.patronymic}
-            onChange={(e) => handleChange('patronymic', e.target.value)}
-          />
+          <input id="add-patronymic" type="text" className="input" placeholder="Иванович"
+            value={form.patronymic} onChange={(e) => handleChange('patronymic', e.target.value)} />
         </div>
         <div>
+          <label className="label" htmlFor="add-gender">Пол</label>
+          <select id="add-gender" className="input" value={form.gender}
+            onChange={(e) => handleChange('gender', e.target.value)}>
+            <option value="">— не указан —</option>
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+          </select>
+        </div>
+        {form.gender === 'female' && (
+          <div>
+            <label className="label" htmlFor="add-maiden-name">Девичья фамилия</label>
+            <input id="add-maiden-name" type="text" className="input" placeholder="Петрова"
+              value={form.maiden_name} onChange={(e) => handleChange('maiden_name', e.target.value)} />
+          </div>
+        )}
+        <div>
           <label className="label" htmlFor="add-birth-date">Дата рождения</label>
-          <input
-            id="add-birth-date"
-            type="date"
-            className="input"
-            value={form.birth_date}
-            onChange={(e) => handleChange('birth_date', e.target.value)}
-          />
+          <input id="add-birth-date" type="date" className="input" value={form.birth_date}
+            onChange={(e) => handleChange('birth_date', e.target.value)} />
         </div>
       </form>
     </Modal>

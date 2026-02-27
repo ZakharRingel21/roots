@@ -24,6 +24,14 @@ const queryClient = new QueryClient({
 
 function RootRedirect() {
   const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
+  if (!initialized) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+      </div>
+    );
+  }
   if (user) return <Navigate to="/trees" replace />;
   return <Navigate to="/login" replace />;
 }
@@ -31,13 +39,14 @@ function RootRedirect() {
 function AppInner() {
   const setUser = useAuthStore((s) => s.setUser);
   const clearUser = useAuthStore((s) => s.clearUser);
+  const setInitialized = useAuthStore((s) => s.setInitialized);
 
   useEffect(() => {
     authApi
       .me()
-      .then((user) => setUser(user))
-      .catch(() => clearUser());
-  }, [setUser, clearUser]);
+      .then((user) => { setUser(user); setInitialized(true); })
+      .catch(() => { clearUser(); setInitialized(true); });
+  }, [setUser, clearUser, setInitialized]);
 
   return (
     <Routes>

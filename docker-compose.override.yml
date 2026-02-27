@@ -10,6 +10,16 @@ services:
     environment:
       ENVIRONMENT: development
 
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev"
+    environment:
+      - VITE_API_URL=/api
+
   nginx:
     volumes:
-      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro

@@ -40,12 +40,8 @@ export function useDeleteTree() {
 export function useCreatePerson(treeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: {
-      first_name: string;
-      last_name: string;
-      patronymic?: string;
-      birth_date?: string;
-    }) => treesApi.createPerson(treeId, data),
+    mutationFn: (data: Parameters<typeof treesApi.createPerson>[1]) =>
+      treesApi.createPerson(treeId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trees', treeId, 'nodes'] });
     },

@@ -19,11 +19,12 @@ function PersonNode({ data, selected }: NodeProps) {
         boxSizing: 'border-box',
       }}
     >
-      <Handle
-        type="target"
-        position={Position.Top}
-        style={{ background: '#94a3b8', width: 8, height: 8 }}
-      />
+      <Handle type="target" position={Position.Top} id="top" style={{ background: '#94a3b8', width: 8, height: 8 }} />
+      {/* Spouse handles — invisible, used for horizontal edges */}
+      <Handle type="source" position={Position.Left}  id="left-s"  style={{ opacity: 0, width: 1, height: 1, left: 0 }} />
+      <Handle type="target" position={Position.Left}  id="left-t"  style={{ opacity: 0, width: 1, height: 1, left: 0 }} />
+      <Handle type="source" position={Position.Right} id="right-s" style={{ opacity: 0, width: 1, height: 1, right: 0 }} />
+      <Handle type="target" position={Position.Right} id="right-t" style={{ opacity: 0, width: 1, height: 1, right: 0 }} />
 
       {/* Avatar */}
       <div className="flex-shrink-0">
@@ -87,11 +88,7 @@ function PersonNode({ data, selected }: NodeProps) {
         )}
       </div>
 
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        style={{ background: '#94a3b8', width: 8, height: 8 }}
-      />
+      <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: '#94a3b8', width: 8, height: 8 }} />
     </div>
   );
 }

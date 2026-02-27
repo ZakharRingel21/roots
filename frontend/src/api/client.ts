@@ -116,6 +116,8 @@ export const treesApi = {
       first_name: string;
       last_name: string;
       patronymic?: string;
+      maiden_name?: string;
+      gender?: 'male' | 'female';
       birth_date?: string;
       birth_place?: string;
       death_date?: string;
@@ -136,6 +138,8 @@ export const personsApi = {
       first_name: string;
       last_name: string;
       patronymic: string;
+      maiden_name: string;
+      gender: 'male' | 'female';
       birth_date: string;
       birth_place: string;
       death_date: string;

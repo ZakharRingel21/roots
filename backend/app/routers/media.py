@@ -67,19 +67,6 @@ async def upload_photo(
 
     file_bytes = await file.read()
 
-    import magic as python_magic
-
-    try:
-        detected_mime = python_magic.from_buffer(file_bytes, mime=True)
-    except Exception:
-        detected_mime = content_type
-
-    if detected_mime not in ALLOWED_IMAGE_MIME:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="File content does not match allowed image types",
-        )
-
     if len(file_bytes) > MAX_PHOTO_SIZE:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
@@ -167,16 +154,10 @@ async def upload_document(
     content_type = file.content_type or ""
     file_bytes = await file.read()
 
-    try:
-        import magic as python_magic
-        detected_mime = python_magic.from_buffer(file_bytes, mime=True)
-    except Exception:
-        detected_mime = content_type
-
-    if detected_mime not in ALLOWED_DOC_MIME:
+    if content_type not in ALLOWED_DOC_MIME:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail=f"Unsupported file type: {detected_mime}",
+            detail=f"Unsupported file type: {content_type}",
         )
 
     if len(file_bytes) > MAX_DOC_SIZE:
@@ -186,13 +167,13 @@ async def upload_document(
         )
 
     original_filename = file.filename or "document"
-    file_url = await upload_file(file_bytes, original_filename, detected_mime, "documents")
+    file_url = await upload_file(file_bytes, original_filename, content_type, "documents")
 
     doc = PersonDocument(
         person_id=person_id,
         file_url=file_url,
         file_name=original_filename,
-        file_type=detected_mime,
+        file_type=content_type,
     )
     db.add(doc)
     await db.flush()

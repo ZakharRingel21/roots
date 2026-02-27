@@ -141,6 +141,7 @@ async def get_tree_nodes(
                     id=str(p.id),
                     first_name=p.first_name,
                     last_name=p.last_name,
+                    patronymic=getattr(p, "patronymic", None),
                     avatar_thumb_url=p.avatar_thumb_url,
                     birth_date=p.birth_date,
                 ),
@@ -148,14 +149,25 @@ async def get_tree_nodes(
             )
         )
 
+    # Deduplicate edges:
+    # - parent: emit A→B once (skip inverse "child" direction)
+    # - spouse/sibling: emit only one edge per pair (canonical order by id)
     edges = []
+    seen_pairs: set[tuple[str, str]] = set()
     for rel in relationships:
+        if rel.relationship_type == RelationshipType.child:
+            continue
+        if rel.relationship_type in (RelationshipType.spouse, RelationshipType.sibling):
+            pair = tuple(sorted([str(rel.person_id), str(rel.related_person_id)]))
+            if pair in seen_pairs:
+                continue
+            seen_pairs.add(pair)
         edges.append(
             ReactFlowEdge(
                 id=str(rel.id),
                 source=str(rel.person_id),
                 target=str(rel.related_person_id),
-                type=rel.relationship_type.value,
+                data={"relationship_type": rel.relationship_type.value},
             )
         )
 

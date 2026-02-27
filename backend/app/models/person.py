@@ -1,11 +1,17 @@
+import enum
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, String, text
+from sqlalchemy import Date, DateTime, Enum, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+
+class Gender(str, enum.Enum):
+    male = "male"
+    female = "female"
 
 
 class Person(Base):
@@ -20,6 +26,10 @@ class Person(Base):
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     patronymic: Mapped[str | None] = mapped_column(String, nullable=True)
+    maiden_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    gender: Mapped[Gender | None] = mapped_column(
+        Enum(Gender, name="gender", create_type=False), nullable=True
+    )
     birth_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     birth_place: Mapped[str | None] = mapped_column(String, nullable=True)
     death_date: Mapped[date | None] = mapped_column(Date, nullable=True)

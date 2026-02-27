@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
+from urllib.parse import urlencode
 
 import httpx
 import structlog
@@ -56,14 +57,13 @@ def decode_token(token: str) -> dict[str, Any] | None:
 def get_google_oauth_url() -> str:
     params = {
         "client_id": settings.GOOGLE_CLIENT_ID,
-        "redirect_uri": f"{settings.FRONTEND_URL}/auth/google/callback",
+        "redirect_uri": f"{settings.FRONTEND_URL}/api/auth/google/callback",
         "response_type": "code",
         "scope": "openid email profile",
         "access_type": "offline",
         "prompt": "select_account",
     }
-    query_string = "&".join(f"{k}={v}" for k, v in params.items())
-    return f"{GOOGLE_AUTH_URL}?{query_string}"
+    return f"{GOOGLE_AUTH_URL}?{urlencode(params)}"
 
 
 async def exchange_google_code(code: str) -> dict[str, Any] | None:
@@ -74,7 +74,7 @@ async def exchange_google_code(code: str) -> dict[str, Any] | None:
                 "code": code,
                 "client_id": settings.GOOGLE_CLIENT_ID,
                 "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                "redirect_uri": f"{settings.FRONTEND_URL}/auth/google/callback",
+                "redirect_uri": f"{settings.FRONTEND_URL}/api/auth/google/callback",
                 "grant_type": "authorization_code",
             },
         )
